@@ -173,12 +173,31 @@ curl http://localhost:8000/advice/goal/1
 
 ## Roadmap
 
+View the full [**FinTrack Roadmap**](https://github.com/users/Akkuya/projects/4) on GitHub Projects.
+
+**Phases:** MVP &rarr; V2 &rarr; V3 &rarr; V4 &rarr; V5 &rarr; V6 &rarr; Crazy
+
+| Phase | Focus |
+|-------|-------|
+| **MVP** | Frontend UI, wire up LLM categorization, category CRUD |
+| **V2** | Edit/delete transactions, budgets, accounts, savings, CSV export |
+| **V3** | Goal progress, recurring transactions, search/filter, error handling |
+| **V4** | Plaid integration, tags, dark mode, pagination |
+| **V5** | AI anomaly detection, monthly reports, chat interface |
+| **V6** | Multi-currency, split transactions, forecasts, test suite |
+| **Crazy** | Investments, retirement, OCR, PWA, AI coach, gamification, and more |
+
+### Completed
+
 - [x] CSV ingestion + transaction storage
 - [x] FastAPI backend with all route handlers
 - [x] SQLite schema + read/write layer
 - [x] LLM categorization pipeline
 - [x] Goals system
 - [x] LLM advice layer
+
+### Coming Up
+
 - [ ] Spending breakdown by category
 - [ ] Savings tracker
 - [ ] Frontend UI (HTML/CSS/JS)
