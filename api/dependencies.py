@@ -4,7 +4,7 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-DB_PATH = Path("data.db")
+DB_PATH = Path("db/data.db")
 
 
 def get_db():
