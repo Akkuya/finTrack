@@ -1,14 +1,27 @@
 import logging
+
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from api.routes import transactions, goals, advice
+
+from api.routes import advice, goals, transactions
 from core.log import setup_logging
+
+from db.schema import init_db
 
 setup_logging()
 
 logger = logging.getLogger(__name__)
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db("db/data.db")
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,

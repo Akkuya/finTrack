@@ -1,8 +1,10 @@
 import logging
-from db import read, write
+
+from fastapi import APIRouter, Depends, HTTPException
+
 from api.dependencies import get_db
+from db import read, write
 from models import Goal
-from fastapi import Depends, APIRouter, HTTPException
 
 logger = logging.getLogger(__name__)
 

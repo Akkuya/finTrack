@@ -1,9 +1,11 @@
 import logging
 import os
+
+from fastapi import APIRouter, Depends, UploadFile
+
+from api.dependencies import get_db
 from db import read, write
 from ingestion import input, parser
-from api.dependencies import get_db
-from fastapi import UploadFile, Depends, APIRouter
 
 logger = logging.getLogger(__name__)
 

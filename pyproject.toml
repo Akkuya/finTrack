@@ -1,7 +1,7 @@
 [project]
 name = "fintrack"
 version = "0.1.0"
-description = "Add your description here"
+description = "Personal finance tracking app with local LLM categorization"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -15,3 +15,25 @@ dependencies = [
     "ruff>=0.15.12",
     "uvicorn>=0.46.0",
 ]
+
+[tool.uvs.scripts]
+dev = "uvicorn api.app:app --reload"
+dev-host = "uvicorn api.app:app --reload --host 0.0.0.0 --port 8000"
+init-db = "python -c 'from db.schema import init_db; init_db()'"
+lint = "ruff check ."
+format = "ruff format ."
+typecheck = "mypy ."
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP"]
+
+[tool.mypy]
+python_version = "3.13"
+strict = false
+ignore_missing_imports = true
+warn_unused_ignores = true
+exclude = [".venv"]

@@ -1,7 +1,9 @@
 import logging
-from db import read
+
+from fastapi import APIRouter, Depends, HTTPException
+
 from api.dependencies import get_db
-from fastapi import Depends, APIRouter, HTTPException
+from db import read
 from llm.advise import general_advice, goal_advice
 
 logger = logging.getLogger(__name__)

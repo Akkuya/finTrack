@@ -1,5 +1,6 @@
-import sqlite3
 import logging
+import sqlite3
+
 import models
 
 logger = logging.getLogger(__name__)
