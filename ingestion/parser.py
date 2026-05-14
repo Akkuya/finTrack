@@ -1,24 +1,31 @@
-from dataclasses import dataclass
-from typing import Optional
+import logging
+from models import Transaction
 
-@dataclass
-class Transaction:
-    date: str
-    name: str
-    amount: float
-    direction: int
-    account: Optional[str]
-    currency: Optional[str]
-    category_id: Optional[int]
+logger = logging.getLogger(__name__)
+
+REQUIRED_COLUMNS = {"Date", "Transaction Details", "Funds In", "Funds Out"}
+
 
 def parse(row: dict) -> Transaction:
-    funds_in = 0 if row["Funds In"] == "" else float(row["Funds In"])
-    funds_out = 0 if row["Funds Out"] == "" else float(row["Funds Out"])
-    amount = funds_in - funds_out
-    direction = 1
-    if amount < 0:
-        direction = -1
-    amount = abs(amount)
-    transaction = Transaction(row["Date"], row["Transaction Details"], amount, direction, None, None, None)
+    missing = REQUIRED_COLUMNS - set(row.keys())
+    if missing:
+        logger.error("Missing CSV columns: %s", missing)
+        raise ValueError(f"Missing columns: {missing}")
 
+    funds_in = 0.0 if row["Funds In"] == "" else float(row["Funds In"])
+    funds_out = 0.0 if row["Funds Out"] == "" else float(row["Funds Out"])
+    amount = abs(funds_in - funds_out)
+    direction = 1 if funds_in >= funds_out else -1
+
+    transaction = Transaction(
+        date=row["Date"],
+        name=row["Transaction Details"],
+        amount=amount,
+        direction=direction,
+        account=None,
+        currency=None,
+        category_id=None,
+    )
+
+    logger.debug("Parsed transaction: %s - %.2f", transaction.name, transaction.amount)
     return transaction
