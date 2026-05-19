@@ -1,6 +1,5 @@
 from pydantic import BaseModel
 
-
 class Transaction(BaseModel):
     date: str
     name: str
@@ -22,8 +21,16 @@ class Goal(BaseModel):
 
 
 class Category(BaseModel):
+    id: int
     name: str
     budget_limit: float | None
+    colour: str | None
+
+
+class CategoryUpdate(BaseModel):
+    name: str | None = None
+    budget_limit: float | None = None
+    colour: str | None = None
 
 
 class Advice(BaseModel):

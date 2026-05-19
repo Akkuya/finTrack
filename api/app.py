@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from api.routes import advice, goals, transactions
+from api.routes import advice, goals, transactions, categories
 from core.log import setup_logging
 
 from db.schema import init_db
@@ -34,6 +34,7 @@ app.add_middleware(
 app.include_router(transactions.router)
 app.include_router(goals.router)
 app.include_router(advice.router)
+app.include_router(categories.router)
 
 
 @app.get("/")
