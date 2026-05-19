@@ -16,5 +16,8 @@ categories = [
 
 def categorize(transaction: models.Transaction) -> str:
     return interface.prompt(
-        f"Return one word from the list of transactions that you think this one falls under. No punctuation, no explanation. Just the word. Transcation Name: {transaction.name}, Amount: {transaction.amount}. Categories: {str(categories)}"
+        "Return one word from the list of transactions that you think this "
+        "one falls under. No punctuation, no explanation. Just the word. "
+        f"Transcation Name: {transaction.name}, Amount: {transaction.amount}. "
+        f"Categories: {str(categories)}"
     )
