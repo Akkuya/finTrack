@@ -1,7 +1,8 @@
 import logging
 import sqlite3
-from db import read
+
 import models
+from db import read
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +59,13 @@ def db_write_category(category: models.Category, db: sqlite3.Connection):
     logger.debug("Category written")
 
 
-def db_update_category(id: int, name: str | None, budget_limit: float | None, colour: str | None, db: sqlite3.Connection):
+def db_update_category(
+    id: int,
+    name: str | None,
+    budget_limit: float | None,
+    colour: str | None,
+    db: sqlite3.Connection,
+):
     logger.info("Updating category id=%s", id)
     existing = db.execute("SELECT * FROM CATEGORIES WHERE ID = ?", (id,)).fetchone()
     if existing is None:
@@ -77,17 +84,18 @@ def db_update_category(id: int, name: str | None, budget_limit: float | None, co
         raise ValueError(f"Category '{new_name}' already exists")
     db.commit()
     logger.debug("Category id=%s updated", id)
-    
+
+
 def db_delete_category(id: int, db: sqlite3.Connection):
     logger.info("Deleting category id=%s", id)
     existing = db.execute("SELECT * FROM CATEGORIES WHERE ID = ?", (id,)).fetchone()
     if existing is None:
         raise ValueError("Category not found")
-    
+
     non_empty = read.get_transactions_by_category(db, id)
     if non_empty:
         raise ValueError("Category has transactions")
-    
+
     db.execute("DELETE FROM CATEGORIES WHERE id = ?", (id,))
     db.commit()
     logger.debug("Category id=%s deleted", id)

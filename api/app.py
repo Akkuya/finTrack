@@ -1,13 +1,11 @@
 import logging
-
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from api.routes import advice, goals, transactions, categories
+from api.routes import advice, categories, goals, transactions
 from core.log import setup_logging
-
 from db.schema import init_db
 
 setup_logging()

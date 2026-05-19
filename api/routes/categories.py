@@ -16,6 +16,7 @@ def get_categories(db=Depends(get_db)):
     logger.info("GET /categories")
     return read.get_categories(db)
 
+
 @router.post("/categories")
 def post_category(category: Category, db=Depends(get_db)):
     logger.info("POST /categories")
@@ -23,12 +24,13 @@ def post_category(category: Category, db=Depends(get_db)):
         raise HTTPException(status_code=400, detail="Name is empty")
     elif category.budget_limit is not None and category.budget_limit <= 0:
         raise HTTPException(status_code=400, detail="Budget is non positive.")
-    
+
     try:
         write.db_write_category(category, db)
     except ValueError as e:
         raise HTTPException(status_code=409, detail=str(e))
     return {"status": "created", "item": category.name}
+
 
 @router.get("/categories/{id}")
 def get_single_category(id: int, db=Depends(get_db)):
@@ -67,4 +69,3 @@ def delete_category(id: int, db=Depends(get_db)):
             raise HTTPException(status_code=404, detail=msg)
         raise HTTPException(status_code=409, detail=msg)
     return {"status": "deleted", "id": id}
-    
