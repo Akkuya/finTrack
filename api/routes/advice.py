@@ -8,7 +8,7 @@ from llm.advise import general_advice, goal_advice
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter()
+router = APIRouter(tags=["Advice"])
 
 
 @router.get("/advice/general")

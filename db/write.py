@@ -1,5 +1,6 @@
 import logging
 import sqlite3
+from datetime import datetime
 
 import models
 from db import read
@@ -8,7 +9,12 @@ logger = logging.getLogger(__name__)
 
 
 def db_write_transaction(transaction: models.Transaction, db: sqlite3.Connection):
-    logger.info("Writing transaction: %s - %.2f", transaction.name, transaction.amount)
+    logger.info(
+        "Writing transaction: %s - %.2f, Category %s",
+        transaction.name,
+        transaction.amount,
+        transaction.category_id,
+    )
     db.execute(
         "INSERT INTO TRANSACTIONS(date, name, amount, direction, account, currency, category_id) "
         "VALUES(?, ?, ?, ?, ?, ?, ?)",
@@ -99,3 +105,51 @@ def db_delete_category(id: int, db: sqlite3.Connection):
     db.execute("DELETE FROM CATEGORIES WHERE id = ?", (id,))
     db.commit()
     logger.debug("Category id=%s deleted", id)
+
+
+def db_update_transaction(
+    id: int,
+    date: str | None,
+    name: str | None,
+    amount: float | None,
+    direction: int | None,
+    account: str | None,
+    currency: str | None,
+    category_id: int | None,
+    db: sqlite3.Connection,
+):
+    logger.info("Updating transaction id=%s", id)
+    existing = db.execute("SELECT * FROM TRANSACTIONS WHERE ID = ?", (id,)).fetchone()
+    if existing is None:
+        raise ValueError("Transaction not found")
+
+    new_name = name if name is not None else existing["name"]
+    new_date = date if date is not None else existing["date"]
+    new_amount = amount if amount is not None else existing["amount"]
+    new_direction = direction if direction is not None else existing["direction"]
+    new_account = account if account is not None else existing["account"]
+    new_currency = currency if currency is not None else existing["currency"]
+    new_category_id = category_id if category_id is not None else existing["category_id"]
+
+    if read.get_category_by_id(db, new_category_id) is None:
+        raise ValueError("Category not found")
+
+    try:
+        db.execute(
+            "UPDATE TRANSACTIONS SET date = ?, name = ?, amount = ?, direction = ?, account = ?, currency = ?, category_id = ?, updated_at = ? WHERE ID = ?",
+            (
+                new_date,
+                new_name,
+                new_amount,
+                new_direction,
+                new_account,
+                new_currency,
+                new_category_id,
+                datetime.now().isoformat(),
+                id,
+            ),
+        )
+    except sqlite3.IntegrityError:
+        raise ValueError(f"Transaction '{new_name}' already exists")
+    db.commit()
+    logger.debug("Transaction id=%s updated", id)

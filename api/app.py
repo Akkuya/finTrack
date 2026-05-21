@@ -8,7 +8,7 @@ from api.routes import advice, categories, goals, transactions
 from core.log import setup_logging
 from db.schema import init_db
 
-setup_logging()
+setup_logging(logging.DEBUG)
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +35,7 @@ app.include_router(advice.router)
 app.include_router(categories.router)
 
 
-@app.get("/")
+@app.get("/", tags=["Health"])
 def health():
     logger.debug("Health check")
     return {"status": "ok"}

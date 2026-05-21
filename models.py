@@ -11,6 +11,16 @@ class Transaction(BaseModel):
     category_id: int | None
 
 
+class TransactionUpdate(BaseModel):
+    date: str | None
+    name: str | None
+    amount: float | None
+    direction: int | None
+    account: str | None
+    currency: str | None
+    category_id: int | None
+
+
 class Goal(BaseModel):
     item_name: str
     target_price: float
@@ -22,7 +32,6 @@ class Goal(BaseModel):
 
 
 class Category(BaseModel):
-    id: int
     name: str
     budget_limit: float | None
     colour: str | None

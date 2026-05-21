@@ -8,7 +8,7 @@ from models import Category, CategoryUpdate
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter()
+router = APIRouter(tags=["Categories"])
 
 
 @router.get("/categories")
