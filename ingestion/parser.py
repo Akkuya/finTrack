@@ -18,8 +18,11 @@ def parse(row: dict) -> Transaction:
     amount = abs(funds_in - funds_out)
     direction = 1 if funds_in >= funds_out else -1
 
+    parts = row["Date"].split("/")
+    normalized_date = f"{parts[2]}-{parts[0].zfill(2)}-{parts[1].zfill(2)}"
+
     transaction = Transaction(
-        date=row["Date"],
+        date=normalized_date,
         name=row["Transaction Details"],
         amount=amount,
         direction=direction,

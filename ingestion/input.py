@@ -9,6 +9,8 @@ def read(file: str) -> list[dict]:
         transactions = []
         with open(file) as f:
             reader = csv.DictReader(f)
+            if reader.fieldnames is not None:
+                reader.fieldnames = [h.strip() for h in reader.fieldnames]
             for row in reader:
                 transactions.append(row)
         logger.info("Read %d rows from %s", len(transactions), file)

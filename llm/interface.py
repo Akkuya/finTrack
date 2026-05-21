@@ -10,6 +10,7 @@ def prompt(message: str) -> str:
         logger.debug("Sending prompt to LLM (%d chars)", len(message))
         response: ChatResponse = chat(
             model="llama3.1:8b",
+            options={"temperature": 0},
             messages=[
                 {"role": "user", "content": message},
             ],

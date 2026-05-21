@@ -37,13 +37,13 @@ def init_db(db_path: str = "data.db") -> None:
     if existing == 0:
         defaults = [
             ("Food", None, "#ef4444"),
-            ("Transport", None, "#f97316"),
+            ("Clothing", None, "#ec4899"),
+            ("Investments", None, "#8b5cf6"),
+            ("Transfers", None, "#3b82f6"),
             ("Shopping", None, "#eab308"),
             ("Entertainment", None, "#22c55e"),
-            ("Bills", None, "#3b82f6"),
-            ("Housing", None, "#8b5cf6"),
-            ("Health", None, "#ec4899"),
-            ("Education", None, "#14b8a6"),
+            ("Transport", None, "#f97316"),
+            ("Subscriptions", None, "#14b8a6"),
             ("Other", None, "#6b7280"),
         ]
         cursor.executemany(
@@ -51,6 +51,12 @@ def init_db(db_path: str = "data.db") -> None:
         )
         logger.info("Seeded %d default categories", len(defaults))
 
+    try:
+        cursor.execute("ALTER TABLE transactions ADD COLUMN updated_at TEXT")
+        logger.info("Added updated_at column to transactions")
+    except sqlite3.OperationalError:
+        pass
     connection.commit()
     connection.close()
+
     logger.info("Database initialized successfully")
