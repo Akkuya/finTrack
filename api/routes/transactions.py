@@ -55,9 +55,16 @@ def get_by_category(category_id: int, db=Depends(get_db)):
 
 
 @router.get("/transactions/summary")
-def get_summary(date_from: int, date_to: int, direction: int = -1, db=Depends(get_db)):
+def get_summary(
+    direction: int = -1,
+    date_from: str | None = None,
+    date_to: str | None = None,
+    db=Depends(get_db),
+):
+    _validate_date(date_from)
+    _validate_date(date_to)
     logger.info("GET /transactions/summary")
-    return read.get_summary(db, date_from, date_to, direction)
+    return read.get_summary(db, direction, date_from, date_to)
 
 
 @router.post("/transactions/import")
