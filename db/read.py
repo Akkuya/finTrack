@@ -43,7 +43,9 @@ def get_category_by_id(db: sqlite3.Connection, id: int) -> models.Category | Non
     return category
 
 
-def get_transactions_by_category(db: sqlite3.Connection, category_id: int) -> list[models.Transaction]:
+def get_transactions_by_category(
+    db: sqlite3.Connection, category_id: int
+) -> list[models.Transaction]:
     logger.debug(f"Fetching transactions with category {category_id}")
     return db.execute("SELECT * FROM TRANSACTIONS WHERE category_id = ?", (category_id,)).fetchall()
 
@@ -78,18 +80,18 @@ def get_summary(
         f"SELECT COALESCE(SUM(amount), 0) FROM TRANSACTIONS WHERE {where}", params
     ).fetchone()[0]
 
-    tx_count = db.execute(
-        f"SELECT COUNT(*) FROM TRANSACTIONS WHERE {where}", params
-    ).fetchone()[0]
+    tx_count = db.execute(f"SELECT COUNT(*) FROM TRANSACTIONS WHERE {where}", params).fetchone()[0]
 
     categories = []
     for row in rows:
-        categories.append({
-            "category_id": row["category_id"],
-            "category_name": row["name"],
-            "total": row["total"],
-            "count": row["count"],
-            "percentage": round(row["total"] / total * 100, 1) if total else 0,
-        })
+        categories.append(
+            {
+                "category_id": row["category_id"],
+                "category_name": row["name"],
+                "total": row["total"],
+                "count": row["count"],
+                "percentage": round(row["total"] / total * 100, 1) if total else 0,
+            }
+        )
 
     return {"categories": categories, "total": total, "transaction_count": tx_count}
