@@ -217,6 +217,19 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 SIMPLII.csv
+SIMPLII (1).csv
 db/data.db
 data.db
 data/
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+.next/
+
+# Environment
+.env
+.env.local
