@@ -35,12 +35,14 @@ class Category(BaseModel):
     name: str
     budget_limit: float | None
     colour: str | None
+    counts_as_cashflow: bool = True
 
 
 class CategoryUpdate(BaseModel):
     name: str | None = None
     budget_limit: float | None = None
     colour: str | None = None
+    counts_as_cashflow: bool | None = None
 
 
 class Advice(BaseModel):

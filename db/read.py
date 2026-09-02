@@ -66,21 +66,29 @@ def get_summary(
         filters.append("date <= ?")
         params.append(date_to)
 
+    # Exclude rows whose category is flagged as non-cashflow (e.g. Transfers,
+    # Investments — pure money relocation that isn't spending/income). Salary and
+    # genuine income categories remain included. Uncategorized rows
+    # (category_id NULL) still count.
     where = " AND ".join(filters)
 
     rows = db.execute(
-        f"SELECT t.category_id, c.name, SUM(t.amount) AS total, COUNT(*) AS count "
-        f"FROM TRANSACTIONS t JOIN CATEGORIES c ON t.category_id = c.id "
-        f"WHERE {where} "
+        f"SELECT t.category_id, COALESCE(c.name, 'Uncategorized') AS name, "
+        f"SUM(t.amount) AS total, COUNT(*) AS count "
+        f"FROM TRANSACTIONS t LEFT JOIN CATEGORIES c ON t.category_id = c.id "
+        f"WHERE {where} AND (c.counts_as_cashflow IS NULL OR c.counts_as_cashflow = 1) "
         f"GROUP BY t.category_id ORDER BY total DESC",
         params,
     ).fetchall()
 
-    total = db.execute(
-        f"SELECT COALESCE(SUM(amount), 0) FROM TRANSACTIONS WHERE {where}", params
-    ).fetchone()[0]
-
-    tx_count = db.execute(f"SELECT COUNT(*) FROM TRANSACTIONS WHERE {where}", params).fetchone()[0]
+    totals = db.execute(
+        f"SELECT COALESCE(SUM(t.amount), 0), COUNT(*) "
+        f"FROM TRANSACTIONS t LEFT JOIN CATEGORIES c ON t.category_id = c.id "
+        f"WHERE {where} AND (c.counts_as_cashflow IS NULL OR c.counts_as_cashflow = 1)",
+        params,
+    ).fetchone()
+    total = totals[0] or 0
+    tx_count = totals[1]
 
     categories = []
     for row in rows:

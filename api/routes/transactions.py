@@ -2,11 +2,12 @@ import logging
 import os
 import re
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, Form, HTTPException, UploadFile
 
 from api.dependencies import get_db
 from db import read, write
 from ingestion import input, parser
+from ingestion.rules import detect_category
 from llm.categorize import categorize_batch
 from models import TransactionUpdate
 
@@ -68,7 +69,7 @@ def get_summary(
 
 
 @router.post("/transactions/import")
-async def create_upload_file(file: UploadFile, db=Depends(get_db)):
+async def create_upload_file(file: UploadFile, bank: str = Form(...), db=Depends(get_db)):
     logger.info("Importing transactions from: %s", file.filename)
     contents = await file.read()
     temp_path = "data/temp.csv"
@@ -77,10 +78,22 @@ async def create_upload_file(file: UploadFile, db=Depends(get_db)):
 
     try:
         rows = input.read(temp_path)
-        transactions = [parser.parse(row) for row in rows]
+        transactions = parser.parse_all(rows, bank)
 
-        predicted = categorize_batch(transactions)
-        for txn, cat_name in zip(transactions, predicted):
+        # Rule-based pre-filter: deterministic patterns (salary, internal
+        # transfers, person-to-person back-and-forth, brokerage deposits) get a
+        # guaranteed category without needing the LLM.
+        pending: list = []
+        for txn in transactions:
+            rule_cat = detect_category(txn.name)
+            if rule_cat:
+                txn.category_id = _category_name_to_id(rule_cat, db)
+                logger.debug("Rule-assigned %s -> %s", txn.name, rule_cat)
+            else:
+                pending.append(txn)
+
+        predicted = categorize_batch(pending)
+        for txn, cat_name in zip(pending, predicted):
             if cat_name:
                 txn.category_id = _category_name_to_id(cat_name, db)
 
@@ -89,7 +102,14 @@ async def create_upload_file(file: UploadFile, db=Depends(get_db)):
 
         categorized = sum(1 for t in transactions if t.category_id is not None)
         logger.info("Imported %d transactions (%d categorized)", len(transactions), categorized)
-        return {"imported": len(transactions), "categorized": categorized}
+        return {
+            "imported": len(transactions),
+            "categorized": categorized,
+            "llm_unavailable": categorized == 0 and len(transactions) > 0,
+        }
+    except ValueError as e:
+        logger.error("Import failed: %s", e)
+        raise HTTPException(status_code=400, detail=str(e))
     finally:
         if os.path.exists(temp_path):
             os.remove(temp_path)

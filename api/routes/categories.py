@@ -49,7 +49,9 @@ def update_category(id: int, body: CategoryUpdate, db=Depends(get_db)):
     if body.budget_limit is not None and body.budget_limit <= 0:
         raise HTTPException(status_code=400, detail="Budget is non positive.")
     try:
-        write.db_update_category(id, body.name, body.budget_limit, body.colour, db)
+        write.db_update_category(
+            id, body.name, body.budget_limit, body.colour, body.counts_as_cashflow, db
+        )
     except ValueError as e:
         msg = str(e)
         if "not found" in msg:

@@ -1,35 +1,18 @@
 import logging
 
+from ingestion.parsers import simplii, tangerine
 from models import Transaction
 
 logger = logging.getLogger(__name__)
 
-REQUIRED_COLUMNS = {"Date", "Transaction Details", "Funds In", "Funds Out"}
+PARSERS = {"simplii": simplii, "tangerine": tangerine}
 
 
-def parse(row: dict) -> Transaction:
-    missing = REQUIRED_COLUMNS - set(row.keys())
-    if missing:
-        logger.error("Missing CSV columns: %s", missing)
-        raise ValueError(f"Missing columns: {missing}")
-
-    funds_in = 0.0 if row["Funds In"] == "" else float(row["Funds In"])
-    funds_out = 0.0 if row["Funds Out"] == "" else float(row["Funds Out"])
-    amount = abs(funds_in - funds_out)
-    direction = 1 if funds_in >= funds_out else -1
-
-    parts = row["Date"].split("/")
-    normalized_date = f"{parts[2]}-{parts[0].zfill(2)}-{parts[1].zfill(2)}"
-
-    transaction = Transaction(
-        date=normalized_date,
-        name=row["Transaction Details"],
-        amount=amount,
-        direction=direction,
-        account=None,
-        currency=None,
-        category_id=None,
-    )
-
-    logger.debug("Parsed transaction: %s - %.2f", transaction.name, transaction.amount)
-    return transaction
+def parse_all(rows: list[dict], bank: str) -> list[Transaction]:
+    if not rows:
+        return []
+    if bank not in PARSERS:
+        raise ValueError(f"Unknown bank format: {bank!r}. Supported: {list(PARSERS)}")
+    format_module = PARSERS[bank]
+    parsed = [format_module.parse(row) for row in rows]
+    return [t for t in parsed if t.amount != 0.0]

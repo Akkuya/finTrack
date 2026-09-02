@@ -20,7 +20,8 @@ def init_db(db_path: str = "data.db") -> None:
     cursor.execute(
         "CREATE TABLE IF NOT EXISTS categories("
         "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-        "name TEXT, budget_limit REAL, colour STRING)"
+        "name TEXT, budget_limit REAL, colour STRING, "
+        "counts_as_cashflow INTEGER DEFAULT 1)"
     )
     cursor.execute(
         "CREATE UNIQUE INDEX IF NOT EXISTS idx_categories_name_uniq "
@@ -36,20 +37,29 @@ def init_db(db_path: str = "data.db") -> None:
     existing = cursor.execute("SELECT COUNT(*) FROM categories").fetchone()[0]
     if existing == 0:
         defaults = [
-            ("Food", None, "#ef4444"),
-            ("Clothing", None, "#ec4899"),
-            ("Investments", None, "#8b5cf6"),
-            ("Transfers", None, "#3b82f6"),
-            ("Shopping", None, "#eab308"),
-            ("Entertainment", None, "#22c55e"),
-            ("Transport", None, "#f97316"),
-            ("Subscriptions", None, "#14b8a6"),
-            ("Other", None, "#6b7280"),
+            ("Food", None, "#ef4444", 1),
+            ("Clothing", None, "#ec4899", 1),
+            ("Investments", None, "#8b5cf6", 0),
+            ("Transfers", None, "#3b82f6", 0),
+            ("Salary", None, "#22c55e", 1),
+            ("Shopping", None, "#eab308", 1),
+            ("Entertainment", None, "#a855f7", 1),
+            ("Transport", None, "#f97316", 1),
+            ("Subscriptions", None, "#14b8a6", 1),
+            ("Other", None, "#6b7280", 1),
         ]
         cursor.executemany(
-            "INSERT INTO categories(name, budget_limit, colour) VALUES(?, ?, ?)", defaults
+            "INSERT INTO categories(name, budget_limit, colour, counts_as_cashflow) "
+            "VALUES(?, ?, ?, ?)",
+            defaults,
         )
         logger.info("Seeded %d default categories", len(defaults))
+
+    try:
+        cursor.execute("ALTER TABLE categories ADD COLUMN counts_as_cashflow INTEGER DEFAULT 1")
+        logger.info("Added counts_as_cashflow column to categories")
+    except sqlite3.OperationalError:
+        pass
 
     try:
         cursor.execute("ALTER TABLE transactions ADD COLUMN updated_at TEXT")

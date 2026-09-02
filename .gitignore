@@ -233,3 +233,6 @@ build/
 # Environment
 .env
 .env.local
+
+# Per-user categorization rules (may contain personal identifiers)
+data/rules_config.json

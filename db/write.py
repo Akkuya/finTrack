@@ -56,8 +56,14 @@ def db_write_category(category: models.Category, db: sqlite3.Connection):
     logger.info("Writing category: %s - %.2f", category.name, category.budget_limit)
     try:
         db.execute(
-            "INSERT INTO CATEGORIES(name, budget_limit, colour) VALUES(?, ?, ?)",
-            (category.name, category.budget_limit, category.colour),
+            "INSERT INTO CATEGORIES(name, budget_limit, colour, counts_as_cashflow) "
+            "VALUES(?, ?, ?, ?)",
+            (
+                category.name,
+                category.budget_limit,
+                category.colour,
+                int(category.counts_as_cashflow),
+            ),
         )
     except sqlite3.IntegrityError:
         raise ValueError(f"Category '{category.name}' already exists")
@@ -70,6 +76,7 @@ def db_update_category(
     name: str | None,
     budget_limit: float | None,
     colour: str | None,
+    counts_as_cashflow: bool | None,
     db: sqlite3.Connection,
 ):
     logger.info("Updating category id=%s", id)
@@ -80,11 +87,17 @@ def db_update_category(
     new_name = name if name is not None else existing["name"]
     new_budget = budget_limit if budget_limit is not None else existing["budget_limit"]
     new_colour = colour if colour is not None else existing["colour"]
+    new_cashflow = (
+        int(counts_as_cashflow)
+        if counts_as_cashflow is not None
+        else existing["counts_as_cashflow"]
+    )
 
     try:
         db.execute(
-            "UPDATE CATEGORIES SET name = ?, budget_limit = ?, colour = ? WHERE ID = ?",
-            (new_name, new_budget, new_colour, id),
+            "UPDATE CATEGORIES SET name = ?, budget_limit = ?, colour = ?, "
+            "counts_as_cashflow = ? WHERE ID = ?",
+            (new_name, new_budget, new_colour, new_cashflow, id),
         )
     except sqlite3.IntegrityError:
         raise ValueError(f"Category '{new_name}' already exists")

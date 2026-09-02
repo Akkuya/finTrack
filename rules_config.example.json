@@ -1,0 +1,5 @@
+{
+  "_comment": "Per-user category rules. Copy this to data/rules_config.json (gitignored) and fill in YOUR patterns. Substrings are matched case-insensitively against transaction names. Each key is a category name; values are string patterns.",
+  "Salary": ["example employer ltd"],
+  "Transfers": ["example person first name"]
+}
