@@ -7,6 +7,7 @@ logger = logging.getLogger(__name__)
 
 REQUIRED_COLUMNS = {"Date", "Transaction", "Name", "Memo", "Amount"}
 
+
 def parse(row: dict) -> Transaction:
 
     missing = REQUIRED_COLUMNS - set(row.keys())

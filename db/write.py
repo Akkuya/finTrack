@@ -149,8 +149,8 @@ def db_update_transaction(
 
     try:
         db.execute(
-            "UPDATE TRANSACTIONS SET date = ?, name = ?, amount = ?, direction = ?" +
-            ", account = ?, currency = ?, category_id = ?, updated_at = ? WHERE ID = ?",
+            "UPDATE TRANSACTIONS SET date = ?, name = ?, amount = ?, direction = ?"
+            + ", account = ?, currency = ?, category_id = ?, updated_at = ? WHERE ID = ?",
             (
                 new_date,
                 new_name,
