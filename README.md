@@ -36,7 +36,7 @@ Import bank transactions, have them automatically categorized by a local LLM, tr
 ## Tech Stack
 
 | Layer | Technology |
-|-------|-----------|
+| ------- | ----------- |
 | Backend | [FastAPI](https://fastapi.tiangolo.com/) |
 | Database | [SQLite](https://sqlite.org/) |
 | LLM | [Ollama](https://ollama.com/) + `llama3.1:8b` |
@@ -80,7 +80,7 @@ The API will be running at `http://localhost:8000` — open `http://localhost:80
 ### Available Commands
 
 | Command | Description |
-|---------|-------------|
+| --------- | ------------- |
 | `uvs dev` | Start backend dev server with hot reload |
 | `uvs dev-host` | Start backend accessible on your network |
 | `uvs init-db` | Create/initialize the SQLite database (`db/data.db`) |
@@ -93,7 +93,7 @@ The API will be running at `http://localhost:8000` — open `http://localhost:80
 
 ## Project Structure
 
-```
+```txt
 fintrack/
 ├── api/              # FastAPI application
 │   ├── app.py           # App factory + route registration
@@ -175,7 +175,7 @@ curl http://localhost:8000/advice/goal/1
 ## API Endpoints
 
 | Method | Path | Description |
-|--------|------|-------------|
+| -------- | ------ | ------------- |
 | `GET` | `/` | Health check |
 | `GET` | `/transactions` | List all transactions |
 | `POST` | `/transactions/import` | Upload CSV of transactions (form: `file`, `bank`) |
@@ -200,7 +200,7 @@ View the full [**FinTrack Roadmap**](https://github.com/users/Akkuya/projects/4)
 **Phases:** MVP &rarr; V2 &rarr; V3 &rarr; V4 &rarr; V5 &rarr; V6 &rarr; Crazy
 
 | Phase | Focus |
-|-------|-------|
+| ------- | ------- |
 | **MVP** | Frontend UI, wire up LLM categorization, category CRUD |
 | **V2** | Edit/delete transactions, budgets, accounts, savings, CSV export |
 | **V3** | Goal progress, recurring transactions, search/filter, error handling |
