@@ -7,6 +7,10 @@ from db import read
 
 logger = logging.getLogger(__name__)
 
+# Sentinel for db_update_transaction's category_id: leave the existing value
+# untouched (as opposed to passing None, which clears/uncategorizes).
+_UNCHANGED = object()
+
 
 def db_write_transaction(transaction: models.Transaction, db: sqlite3.Connection):
     logger.info(
@@ -128,9 +132,15 @@ def db_update_transaction(
     direction: int | None,
     account: str | None,
     currency: str | None,
-    category_id: int | None,
-    db: sqlite3.Connection,
+    category_id: int | None = _UNCHANGED,
+    db: sqlite3.Connection = None,
 ):
+    """Update a transaction.
+
+    ``category_id`` is special-cased: passing ``None`` clears the category
+    (uncategorize); passing the ``_UNCHANGED`` sentinel (the default) leaves
+    the existing value untouched.
+    """
     logger.info("Updating transaction id=%s", id)
     existing = db.execute("SELECT * FROM TRANSACTIONS WHERE ID = ?", (id,)).fetchone()
     if existing is None:
@@ -142,9 +152,13 @@ def db_update_transaction(
     new_direction = direction if direction is not None else existing["direction"]
     new_account = account if account is not None else existing["account"]
     new_currency = currency if currency is not None else existing["currency"]
-    new_category_id = category_id if category_id is not None else existing["category_id"]
+    new_category_id = (
+        category_id
+        if category_id is not _UNCHANGED
+        else existing["category_id"]
+    )
 
-    if read.get_category_by_id(db, new_category_id) is None:
+    if new_category_id is not None and read.get_category_by_id(db, new_category_id) is None:
         raise ValueError("Category not found")
 
     try:

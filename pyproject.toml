@@ -19,14 +19,19 @@ dependencies = [
 [tool.uvs.scripts]
 dev = "uvicorn api.app:app --reload"
 dev-host = "uvicorn api.app:app --reload --host 0.0.0.0 --port 8000"
-init-db = "python -c 'from db.schema import init_db; init_db()'"
+init-db = "python -c 'from db.schema import init_db; init_db(\"db/data.db\")'"
 lint = "ruff check ."
 format = "ruff format ."
 typecheck = "mypy ."
+test = "pytest"
 
 [tool.ruff]
 line-length = 100
 target-version = "py313"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "N", "UP"]
@@ -37,3 +42,8 @@ strict = false
 ignore_missing_imports = true
 warn_unused_ignores = true
 exclude = [".venv"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
